@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naam Jap Tracker - Shri Radha</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+:root {
+    --primary: #FF9933; /* Saffron */
+    --primary-glow: rgba(255, 153, 51, 0.5);
+    --secondary: #FFD700; /* Gold */
+    --accent: #E32636; /* Alizarin Crimson / Deep Red */
+    --bg-dark: #120e0a;
+    --panel-bg: rgba(30, 24, 20, 0.6);
+    --panel-border: rgba(255, 153, 51, 0.2);
+    --text-light: #FDFBF7;
+    --text-muted: #B3A492;
+    --danger: #ff4444;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.background-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: radial-gradient(circle at 50% 0%, rgba(255, 153, 51, 0.15), transparent 60%),
+                radial-gradient(circle at 100% 100%, rgba(227, 38, 54, 0.1), transparent 50%);
+    z-index: -1;
+}
+
+.container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+
+/* Header */
+header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 2rem; animation: fadeInDown 0.8s ease-out;
+}
+.header-title h1 {
+    font-size: 3rem; color: var(--primary);
+    text-shadow: 0 0 15px var(--primary-glow);
+    font-weight: 700; line-height: 1;
+}
+.header-title p {
+    color: var(--secondary); font-size: 1.2rem;
+    letter-spacing: 2px; text-transform: uppercase; margin-top: 0.5rem;
+}
+
+.controls { display: flex; gap: 1rem; }
+
+/* Tabs */
+.tabs {
+    display: flex; gap: 1rem; margin-bottom: 2rem;
+    border-bottom: 1px solid var(--panel-border);
+    padding-bottom: 1rem;
+}
+.tab-btn {
+    background: transparent; border: none;
+    color: var(--text-muted); font-size: 1.1rem;
+    font-family: 'Outfit', sans-serif; cursor: pointer;
+    padding: 0.5rem 1rem; transition: color 0.3s;
+}
+.tab-btn:hover { color: var(--text-light); }
+.tab-btn.active {
+    color: var(--primary);
+    border-bottom: 2px solid var(--primary);
+    font-weight: 600;
+}
+
+.tab-content { display: none; animation: fadeIn 0.5s ease-out; }
+.tab-content.active { display: block; }
+
+/* Panels */
+.glass-panel {
+    background: var(--panel-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--panel-border); border-radius: 16px;
+    padding: 2rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Buttons */
+.glass-btn {
+    background: rgba(255, 255, 255, 0.05); border: 1px solid var(--panel-border);
+    color: var(--text-light); padding: 0.6rem 1.2rem; border-radius: 8px;
+    cursor: pointer; font-family: 'Outfit', sans-serif; font-weight: 600;
+    transition: all 0.2s ease; backdrop-filter: blur(5px);
+}
+.glass-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--primary); color: var(--primary); }
+.glass-btn.danger { color: var(--danger); border-color: rgba(255, 68, 68, 0.3); }
+.glass-btn.danger:hover { background: rgba(255, 68, 68, 0.1); border-color: var(--danger); }
+
+.btn-group { display: flex; gap: 1rem; margin-top: 1.5rem; }
+.action-btn {
+    background: var(--panel-bg); border: 1px solid var(--primary);
+    color: var(--primary); padding: 0.8rem 1.5rem; border-radius: 8px;
+    cursor: pointer; font-size: 1.1rem; font-weight: 600; transition: all 0.2s ease;
+    flex: 1; text-align: center;
+}
+.action-btn:hover { background: var(--primary); color: var(--bg-dark); box-shadow: 0 0 15px var(--primary-glow); }
+.primary-btn { background: linear-gradient(135deg, var(--primary), #FF7700); color: var(--bg-dark); border: none; }
+.secondary-btn { border-color: var(--secondary); color: var(--secondary); }
+.secondary-btn:hover { background: var(--secondary); color: var(--bg-dark); box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
+
+/* Dashboard Grid */
+.dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+.max-w-600 { max-width: 600px; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+.mt-4 { margin-top: 1.5rem; }
+
+.section-title { font-size: 1.5rem; color: var(--text-muted); margin-bottom: 1.5rem; font-weight: 400; }
+.text-center { text-align: center; }
+
+/* Progress Circle */
+.progress-circle { position: relative; width: 250px; height: 250px; margin: 0 auto; }
+.progress-circle svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.progress-circle circle { fill: none; stroke-width: 6; stroke-linecap: round; }
+.progress-circle .bg { stroke: rgba(255, 255, 255, 0.05); }
+.progress-circle .progress {
+    stroke: var(--primary); stroke-dasharray: 283; stroke-dashoffset: 283;
+    transition: stroke-dashoffset 0.5s ease-out; filter: drop-shadow(0 0 8px var(--primary-glow));
+}
+.counter-text {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    display: flex; flex-direction: column; align-items: center;
+}
+#dailyCount { font-size: 3.5rem; font-weight: 700; color: var(--secondary); text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); line-height: 1; }
+.goal-text { font-size: 1.2rem; color: var(--text-muted); margin-top: 0.5rem; }
+.instruction { margin-top: 1.5rem; color: var(--text-muted); }
+.highlight { color: var(--primary); font-weight: bold; padding: 0.2rem 0.6rem; background: rgba(255, 153, 51, 0.1); border-radius: 4px; border: 1px solid rgba(255, 153, 51, 0.3); }
+
+/* Stats rows */
+.stat-row { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+.stat-row:last-child { border-bottom: none; }
+.stat-value { font-size: 1.3rem; font-weight: 600; color: var(--secondary); }
+.highlight-row span { color: var(--primary); }
+
+/* Charts (Fix for infinity scroll) */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+.stats-grid .chart-card:last-child .chart-container {
+    height: 400px; /* Make the bottom spanning chart taller */
+}
+
+/* Table */
+.table-container { max-height: 600px; overflow-y: auto; margin-top: 1rem; border-radius: 8px; border: 1px solid var(--panel-border); }
+table { width: 100%; border-collapse: collapse; text-align: left; }
+th { background: rgba(0, 0, 0, 0.5); padding: 1rem; position: sticky; top: 0; color: var(--primary); font-weight: 600; }
+td { padding: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: var(--text-light); }
+tr:hover td { background: rgba(255, 153, 51, 0.05); }
+.edit-btn { background: none; border: none; color: var(--secondary); cursor: pointer; text-decoration: underline; font-family: inherit; font-size: 1rem; }
+
+/* Modal */
+.modal {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.8); display: flex; justify-content: center; align-items: center;
+    z-index: 100; opacity: 1; transition: opacity 0.3s ease;
+}
+.modal.hidden { opacity: 0; pointer-events: none; }
+.modal-content { width: 100%; max-width: 450px; transform: scale(1); transition: transform 0.3s ease; }
+.modal.hidden .modal-content { transform: scale(0.95); }
+.modal h2 { color: var(--primary); margin-bottom: 1.5rem; }
+
+.setting-group { margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.glass-input {
+    background: rgba(0,0,0,0.4); border: 1px solid var(--panel-border);
+    color: white; padding: 0.8rem; border-radius: 8px; font-family: inherit; font-size: 1.1rem;
+}
+.glass-input:focus { outline: none; border-color: var(--primary); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb { background: rgba(255, 153, 51, 0.3); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 153, 51, 0.5); }
+
+@keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+@media (max-width: 900px) {
+    .dashboard-grid, .stats-grid { grid-template-columns: 1fr; }
+}
+
+</style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="background-overlay"></div>
+    
+    <div class="container">
+        <header>
+            <div class="header-title">
+                <h1 id="mainTitle">॥ श्री राधा ॥</h1>
+                <p>Naam Jap Tracker</p>
+            </div>
+            <div class="controls">
+                <button id="exportBtn" class="glass-btn">Export Backup</button>
+                <label for="importFile" class="glass-btn">Import Backup</label>
+                <input type="file" id="importFile" accept=".json" style="display: none;">
+                <button class="glass-btn danger" id="resetBtn">Reset/Clear Data</button>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+            <button class="tab-btn" data-tab="statistics">Statistics</button>
+            <button class="tab-btn" data-tab="history">Data History</button>
+            <button class="tab-btn" data-tab="settings">Settings ⚙</button>
+        </nav>
+
+        <main>
+            <!-- 1. Dashboard Tab -->
+            <div id="dashboard" class="tab-content active">
+                <div class="dashboard-grid">
+                    <div class="counter-card glass-panel text-center">
+                        <h2 class="section-title">Today's Progress</h2>
+                        <div class="progress-circle" id="progressCircle">
+                            <svg viewBox="0 0 100 100">
+                                <circle class="bg" cx="50" cy="50" r="45"></circle>
+                                <circle class="progress" cx="50" cy="50" r="45"></circle>
+                            </svg>
+                            <div class="counter-text">
+                                <span id="dailyCount">0</span>
+                                <span class="goal-text">/ <span id="dailyGoalDisplay">2160</span></span>
+                            </div>
+                        </div>
+                        <p class="instruction">Press <span id="currentHotkeyDisplay" class="highlight">Space</span> to chant</p>
+                        
+                        <div class="btn-group">
+                            <button id="manualIncrementBtn" class="action-btn primary-btn">Chant +1</button>
+                            <button id="openManualEntryBtn" class="action-btn secondary-btn">Physical Counter</button>
+                        </div>
+                        <div style="margin-top: 1rem; color: var(--text-muted); font-size: 0.9rem;">
+                            PC: <span id="todayPcCount">0</span> | Physical: <span id="todayManualCount">0</span>
+                        </div>
+                    </div>
+
+                    <div class="stats-card glass-panel">
+                        <h2 class="section-title">Quick Stats</h2>
+                        <div class="stat-row">
+                            <span>Lifetime Japs:</span>
+                            <span id="statTotal" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Daily Average:</span>
+                            <span id="statAvg" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Lifetime Target:</span>
+                            <span id="statTarget" class="stat-value">80,000,000</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Est. Days to Target:</span>
+                            <span id="statDays" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-row highlight-row">
+                            <span>Target Date:</span>
+                            <span id="statTargetDate" class="stat-value">Calculating...</span>
+                        </div>
+                        <div class="stat-row highlight-row" id="ageRow" style="display:none;">
+                            <span>Age on Target Date:</span>
+                            <span id="statAge" class="stat-value">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Statistics Tab -->
+            <div id="statistics" class="tab-content">
+                <div class="glass-panel" style="margin-bottom: 2rem; display: flex; gap: 2rem; align-items: center; flex-wrap: wrap;">
+                    <div>
+                        <label style="color: var(--text-muted); margin-right: 0.5rem;">Graph Range:</label>
+                        <select id="chartRangeSelect" class="glass-input" style="padding: 0.4rem;">
+                            <option value="7">Last 7 Days</option>
+                            <option value="30" selected>Last 30 Days</option>
+                            <option value="90">Last 3 Months</option>
+                            <option value="180">Last 6 Months</option>
+                            <option value="all">Lifetime</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="color: var(--text-muted); margin-right: 0.5rem;">Moving Average Window (Days):</label>
+                        <input type="number" id="maWindowInput" value="30" min="1" class="glass-input" style="width: 80px; padding: 0.4rem;">
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="chart-card glass-panel">
+                        <h2 class="section-title">Cumulative Progress</h2>
+                        <div class="chart-container">
+                            <canvas id="cumulativeChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card glass-panel">
+                        <h2 class="section-title">Daily Jap Count</h2>
+                        <div class="chart-container">
+                            <canvas id="dailyChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card glass-panel" style="grid-column: 1 / -1;">
+                        <h2 class="section-title">Moving Average (30 Days)</h2>
+                        <div class="chart-container">
+                            <canvas id="avgChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Data History Tab -->
+            <div id="history" class="tab-content">
+                <div class="glass-panel">
+                    <div class="history-header">
+                        <h2 class="section-title">Past Data (Excel View)</h2>
+                        <p class="instruction">Click Edit to change your Physical Counter reading for that day.</p>
+                    </div>
+                    <div class="table-container">
+                        <table id="historyTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>PC Japs</th>
+                                    <th>Physical Japs</th>
+                                    <th>Total Daily</th>
+                                    <th>Cumulative Total</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Settings Tab -->
+            <div id="settings" class="tab-content">
+                <div class="glass-panel max-w-600 mx-auto">
+                    <h2 class="section-title">Application Settings</h2>
+                    
+                    <div class="setting-group">
+                        <label>Deity Name:</label>
+                        <select id="deitySelect" class="glass-input">
+                            <option value="॥ श्री राधा ॥">॥ श्री राधा ॥</option>
+                            <option value="॥ श्री कृष्ण ॥">॥ श्री कृष्ण ॥</option>
+                            <option value="॥ राधा कृष्ण ॥">॥ राधा कृष्ण ॥</option>
+                            <option value="॥ शिव जी ॥">॥ शिव जी ॥</option>
+                            <option value="॥ महादेव ॥">॥ महादेव ॥</option>
+                            <option value="॥ राम ॥">॥ राम ॥</option>
+                            <option value="॥ सीता राम ॥">॥ सीता राम ॥</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>Hotkey to Increment:</label>
+                        <button id="hotkeyBtn" class="action-btn">Press to set key</button>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>Daily Goal:</label>
+                        <input type="number" id="dailyGoalInput" value="2160" class="glass-input">
+                    </div>
+
+                    <div class="setting-group">
+                        <label>Lifetime Target:</label>
+                        <input type="number" id="lifetimeTargetInput" value="80000000" class="glass-input">
+                    </div>
+
+                    <div class="setting-group">
+                        <label>Date of Birth (Optional for Age calculation):</label>
+                        <input type="date" id="dobInput" class="glass-input">
+                    </div>
+
+                    <div class="setting-group mt-4">
+                        <button id="saveSettingsBtn" class="action-btn primary-btn">Save Settings</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="manualEntryModal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <h2>Physical Counter Entry</h2>
+            <div class="setting-group">
+                <label>Date:</label>
+                <input type="date" id="manualDate" class="glass-input">
+            </div>
+            <div class="setting-group">
+                <label>Physical Counter Reading:</label>
+                <input type="number" id="manualCount" class="glass-input" placeholder="e.g. 2000">
+                <small style="color: var(--text-muted); margin-top: 5px;">This value will be added to your PC Japs for the selected date.</small>
+            </div>
+            <div class="btn-group mt-4">
+                <button id="saveManualBtn" class="action-btn primary-btn">Save</button>
+                <button id="closeManualBtn" class="action-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data scripts -->
+    
+    <script>
+// No INITIAL_DATA included here. App starts 100% fresh for sharing!
+let state = {
+    history: [],
+    target: 80000000,
+    dailyGoal: 2160,
+    hotkey: ' ', // Spacebar default
+    dob: '',
+    deityName: '॥ श्री राधा ॥'
+};
+
+// DOM Elements
+const mainTitle = document.getElementById('mainTitle');
+const dailyCountEl = document.getElementById('dailyCount');
+const dailyGoalDisplayEl = document.getElementById('dailyGoalDisplay');
+const progressCircle = document.querySelector('.progress');
+const currentHotkeyDisplay = document.getElementById('currentHotkeyDisplay');
+const manualBtn = document.getElementById('manualIncrementBtn');
+
+const todayPcCountEl = document.getElementById('todayPcCount');
+const todayManualCountEl = document.getElementById('todayManualCount');
+
+const statTotal = document.getElementById('statTotal');
+const statAvg = document.getElementById('statAvg');
+const statTarget = document.getElementById('statTarget');
+const statDays = document.getElementById('statDays');
+const statTargetDate = document.getElementById('statTargetDate');
+const ageRow = document.getElementById('ageRow');
+const statAge = document.getElementById('statAge');
+
+const settingsBtn = document.querySelector('[data-tab="settings"]');
+const deitySelect = document.getElementById('deitySelect');
+const hotkeyBtn = document.getElementById('hotkeyBtn');
+const dailyGoalInput = document.getElementById('dailyGoalInput');
+const lifetimeTargetInput = document.getElementById('lifetimeTargetInput');
+const dobInput = document.getElementById('dobInput');
+const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+
+const exportBtn = document.getElementById('exportBtn');
+const importFile = document.getElementById('importFile');
+const resetBtn = document.getElementById('resetBtn');
+
+// Modals & Manual Entry
+const manualEntryModal = document.getElementById('manualEntryModal');
+const openManualEntryBtn = document.getElementById('openManualEntryBtn');
+const closeManualBtn = document.getElementById('closeManualBtn');
+const saveManualBtn = document.getElementById('saveManualBtn');
+const manualDate = document.getElementById('manualDate');
+const manualCount = document.getElementById('manualCount');
+
+// Table
+const historyTableBody = document.getElementById('historyTableBody');
+
+// Chart Inputs
+const chartRangeSelect = document.getElementById('chartRangeSelect');
+const maWindowInput = document.getElementById('maWindowInput');
+
+// Charts
+let dailyChartInstance = null;
+let cumulativeChartInstance = null;
+let avgChartInstance = null;
+let isSettingHotkey = false;
+
+// Initialization
+function init() {
+    loadData();
+    setupEventListeners();
+    setupTabs();
+    updateUI();
+    renderCharts();
+    renderTable();
+}
+
+function getTodayString() {
+    const today = new Date();
+    return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+}
+
+function loadData() {
+    const saved = localStorage.getItem('naamJapData');
+    const isCleared = localStorage.getItem('naamJapCleared');
+    
+    if (saved) {
+        state = Object.assign(state, JSON.parse(saved));
+    } else if (window.INITIAL_DATA && !isCleared) {
+        state = Object.assign(state, window.INITIAL_DATA);
+        state.hotkey = ' ';
+    } else {
+        // Start completely fresh
+        state.history = [];
+    }
+    
+    // Migrate old data model (count) to new dual tracking model (pc_count + manual_count)
+    state.history.forEach(entry => {
+        if (entry.pc_count === undefined) entry.pc_count = 0;
+        if (entry.manual_count === undefined) {
+            entry.manual_count = entry.count || 0;
+        }
+        // Always compute total count
+        entry.count = entry.pc_count + entry.manual_count;
+    });
+    
+    // Ensure today's entry exists
+    const today = getTodayString();
+    let todayEntry = state.history.find(entry => entry.date === today);
+    
+    if (!todayEntry) {
+        state.history.push({
+            date: today,
+            pc_count: 0,
+            manual_count: 0,
+            count: 0,
+            cumulative: 0
+        });
+    }
+    recalculateCumulatives();
+}
+
+function saveData() {
+    localStorage.setItem('naamJapData', JSON.stringify(state));
+}
+
+// Recalculate all totals
+function recalculateCumulatives() {
+    state.history.sort((a, b) => new Date(a.date) - new Date(b.date));
+    let runningTotal = 0;
+    for (let entry of state.history) {
+        entry.count = (entry.pc_count || 0) + (entry.manual_count || 0);
+        runningTotal += entry.count;
+        entry.cumulative = runningTotal;
+    }
+    saveData();
+}
+
+// Dynamic refresh for UI across the app
+function refreshAll() {
+    recalculateCumulatives();
+    updateUI();
+    renderTable();
+    renderCharts();
+}
+
+// Logic
+function incrementCount() {
+    const today = getTodayString();
+    let todayEntry = state.history.find(entry => entry.date === today);
+    
+    todayEntry.pc_count++;
+    refreshAll();
+    
+    // Tiny pop animation on the number
+    dailyCountEl.style.transform = 'scale(1.2)';
+    dailyCountEl.style.color = 'var(--primary)';
+    setTimeout(() => {
+        dailyCountEl.style.transform = 'scale(1)';
+        dailyCountEl.style.color = 'var(--secondary)';
+    }, 150);
+}
+
+// Calculations
+function calculateStats() {
+    const total = state.history.length > 0 ? state.history[state.history.length - 1].cumulative : 0;
+    const totalDays = state.history.length;
+    const avg = totalDays > 0 ? Math.round(total / totalDays) : 0;
+    const remaining = state.target - total;
+    const daysToTarget = avg > 0 ? Math.ceil(remaining / avg) : Infinity;
+    
+    let targetDateStr = "∞";
+    let targetAgeStr = "--";
+    
+    if (avg > 0) {
+        const targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() + daysToTarget);
+        targetDateStr = targetDate.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+        
+        if (state.dob) {
+            const birthDate = new Date(state.dob);
+            let ageYears = targetDate.getFullYear() - birthDate.getFullYear();
+            let m = targetDate.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && targetDate.getDate() < birthDate.getDate())) {
+                ageYears--;
+            }
+            targetAgeStr = `${ageYears} Years`;
+        }
+    }
+    
+    return { total, avg, daysToTarget, targetDateStr, targetAgeStr };
+}
+
+// UI Updates
+function updateUI() {
+    const today = getTodayString();
+    const todayEntry = state.history.find(entry => entry.date === today) || { count: 0, pc_count: 0, manual_count: 0 };
+    
+    // Deity Name
+    const dName = state.deityName || '॥ श्री राधा ॥';
+    mainTitle.textContent = dName;
+    document.title = 'Naam Jap Tracker - ' + dName;
+
+    // Progress
+    dailyCountEl.textContent = todayEntry.count.toLocaleString();
+    todayPcCountEl.textContent = (todayEntry.pc_count || 0).toLocaleString();
+    todayManualCountEl.textContent = (todayEntry.manual_count || 0).toLocaleString();
+    
+    dailyGoalDisplayEl.textContent = state.dailyGoal.toLocaleString();
+    
+    let percentage = (todayEntry.count / state.dailyGoal) * 100;
+    if (percentage > 100) percentage = 100;
+    
+    const circumference = 2 * Math.PI * 45; // r=45
+    const offset = circumference - (percentage / 100) * circumference;
+    progressCircle.style.strokeDashoffset = offset;
+
+    // Hotkey display
+    currentHotkeyDisplay.textContent = state.hotkey === ' ' ? 'Space' : state.hotkey;
+    
+    // Stats
+    const stats = calculateStats();
+    statTotal.textContent = stats.total.toLocaleString();
+    statTarget.textContent = state.target.toLocaleString();
+    statAvg.textContent = stats.avg.toLocaleString();
+    statDays.textContent = stats.daysToTarget === Infinity ? '∞' : stats.daysToTarget.toLocaleString();
+    statTargetDate.textContent = stats.targetDateStr;
+    
+    if (state.dob) {
+        ageRow.style.display = 'flex';
+        statAge.textContent = stats.targetAgeStr;
+    } else {
+        ageRow.style.display = 'none';
+    }
+}
+
+function renderTable() {
+    historyTableBody.innerHTML = '';
+    // Show newest first
+    const reversedHistory = [...state.history].reverse();
+    
+    reversedHistory.forEach(entry => {
+        const pc = entry.pc_count || 0;
+        const manual = entry.manual_count || 0;
+        const total = entry.count || 0;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${entry.date}</td>
+            <td>${pc.toLocaleString()}</td>
+            <td>${manual.toLocaleString()}</td>
+            <td style="font-weight:bold; color:var(--primary)">${total.toLocaleString()}</td>
+            <td>${entry.cumulative.toLocaleString()}</td>
+            <td><button class="edit-btn" data-date="${entry.date}" data-manual="${manual}">Edit</button></td>
+        `;
+        historyTableBody.appendChild(tr);
+    });
+    
+    // Attach edit listeners
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const date = e.target.getAttribute('data-date');
+            const manual = e.target.getAttribute('data-manual');
+            manualDate.value = date;
+            manualCount.value = manual;
+            manualEntryModal.classList.remove('hidden');
+        });
+    });
+}
+
+function renderCharts() {
+    const rangeVal = chartRangeSelect.value;
+    let numDays = state.history.length;
+    if (rangeVal !== 'all') {
+        numDays = parseInt(rangeVal) || 30;
+    }
+    const recentData = state.history.slice(-numDays);
+    
+    const labels = recentData.map(entry => {
+        const d = new Date(entry.date);
+        return `${d.getDate()}/${d.getMonth()+1}`;
+    });
+    
+    const dailyData = recentData.map(entry => entry.count);
+    const cumulativeData = recentData.map(entry => entry.cumulative);
+    
+    const maWindow = parseInt(maWindowInput.value) || 30;
+    
+    // Calculate dynamic moving average
+    const movingAvgData = [];
+    for(let i = 0; i < recentData.length; i++) {
+        // Find absolute index in the main history array
+        const absoluteIndex = state.history.length - recentData.length + i;
+        const startIdx = Math.max(0, absoluteIndex - maWindow + 1);
+        const endIdx = absoluteIndex;
+        const slice = state.history.slice(startIdx, endIdx + 1);
+        const sum = slice.reduce((a,b) => a + b.count, 0);
+        movingAvgData.push(Math.round(sum / slice.length));
+    }
+
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+            mode: 'index',
+            intersect: false,
+        },
+        plugins: {
+            legend: { display: false },
+            tooltip: { 
+                backgroundColor: 'rgba(18, 14, 10, 0.9)', 
+                titleColor: '#FF9933', 
+                bodyColor: '#FDFBF7' 
+            }
+        },
+        scales: {
+            y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#B3A492' } },
+            x: { grid: { display: false }, ticks: { color: '#B3A492', maxTicksLimit: 10 } }
+        }
+    };
+
+    // 1. Daily Chart (Bar)
+    if (dailyChartInstance) dailyChartInstance.destroy();
+    dailyChartInstance = new Chart(document.getElementById('dailyChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Total Daily Count',
+                data: dailyData,
+                backgroundColor: 'rgba(255, 153, 51, 0.6)',
+                borderColor: '#FF9933',
+                borderWidth: 1,
+                pointRadius: 0,
+                pointHoverRadius: 6
+            }]
+        },
+        options: commonOptions
+    });
+
+    // 2. Cumulative Chart (Line)
+    if (cumulativeChartInstance) cumulativeChartInstance.destroy();
+    cumulativeChartInstance = new Chart(document.getElementById('cumulativeChart').getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Cumulative Japs',
+                data: cumulativeData,
+                borderColor: '#FFD700',
+                backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 6
+            }]
+        },
+        options: commonOptions
+    });
+
+    // 3. Moving Average Chart (Line)
+    if (avgChartInstance) avgChartInstance.destroy();
+    avgChartInstance = new Chart(document.getElementById('avgChart').getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Moving Avg',
+                data: movingAvgData,
+                borderColor: '#E32636',
+                backgroundColor: 'rgba(227, 38, 54, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 6
+            }]
+        },
+        options: commonOptions
+    });
+}
+
+function setupTabs() {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            // Remove active class
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            // Add active class
+            e.target.classList.add('active');
+            const tabId = e.target.getAttribute('data-tab');
+            document.getElementById(tabId).classList.add('active');
+            
+            // If settings, populate values
+            if (tabId === 'settings') {
+                deitySelect.value = state.deityName || '॥ श्री राधा ॥';
+                dailyGoalInput.value = state.dailyGoal;
+                lifetimeTargetInput.value = state.target;
+                dobInput.value = state.dob || '';
+                hotkeyBtn.textContent = `Press to set key (Currently: ${state.hotkey === ' ' ? 'Space' : state.hotkey})`;
+            } else if (tabId === 'statistics') {
+                renderCharts();
+            }
+        });
+    });
+}
+
+// Event Listeners
+function setupEventListeners() {
+    // Global Keypress for incrementing
+    document.addEventListener('keydown', (e) => {
+        if (isSettingHotkey || manualEntryModal.classList.contains('hidden') === false) return;
+        
+        // Ignore if focus is in an input
+        if (document.activeElement.tagName === 'INPUT') return;
+        
+        if (e.key === state.hotkey) {
+            e.preventDefault(); // Prevent scrolling if spacebar
+            incrementCount();
+        }
+    });
+
+    manualBtn.addEventListener('click', incrementCount);
+
+    // Settings Save
+    saveSettingsBtn.addEventListener('click', () => {
+        state.deityName = deitySelect.value;
+        state.dailyGoal = parseInt(dailyGoalInput.value) || 2160;
+        state.target = parseInt(lifetimeTargetInput.value) || 80000000;
+        state.dob = dobInput.value;
+        saveData();
+        updateUI();
+        alert("Settings Saved!");
+    });
+
+    // Chart Options
+    chartRangeSelect.addEventListener('change', renderCharts);
+    maWindowInput.addEventListener('change', renderCharts);
+
+    // Set Hotkey
+    hotkeyBtn.addEventListener('click', () => {
+        isSettingHotkey = true;
+        hotkeyBtn.textContent = "Listening... Press any key";
+        hotkeyBtn.style.borderColor = "var(--secondary)";
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (isSettingHotkey) {
+            e.preventDefault();
+            let key = e.key;
+            state.hotkey = key;
+            saveData();
+            hotkeyBtn.textContent = `Press to set key (Currently: ${key === ' ' ? 'Space' : key})`;
+            hotkeyBtn.style.borderColor = "var(--primary)";
+            updateUI();
+            isSettingHotkey = false;
+        }
+    });
+
+    // Manual Entry
+    openManualEntryBtn.addEventListener('click', () => {
+        manualDate.value = getTodayString();
+        const todayEntry = state.history.find(entry => entry.date === manualDate.value);
+        manualCount.value = todayEntry ? (todayEntry.manual_count || 0) : 0;
+        manualEntryModal.classList.remove('hidden');
+    });
+
+    closeManualBtn.addEventListener('click', () => {
+        manualEntryModal.classList.add('hidden');
+    });
+
+    saveManualBtn.addEventListener('click', () => {
+        const dateStr = manualDate.value;
+        const newManualCount = parseInt(manualCount.value) || 0;
+        
+        if (!dateStr) return alert("Please select a date.");
+
+        let entry = state.history.find(e => e.date === dateStr);
+        if (entry) {
+            entry.manual_count = newManualCount;
+        } else {
+            state.history.push({ 
+                date: dateStr, 
+                pc_count: 0, 
+                manual_count: newManualCount,
+                count: newManualCount,
+                cumulative: 0 
+            });
+        }
+        
+        refreshAll();
+        manualEntryModal.classList.add('hidden');
+    });
+
+    // Export JSON
+    exportBtn.addEventListener('click', () => {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 4));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", `naam_jap_backup_${getTodayString()}.json`);
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    });
+
+    // Import JSON
+    importFile.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                if (importedData && importedData.history) {
+                    state = importedData;
+                    refreshAll();
+                    alert("Data imported successfully!");
+                } else {
+                    alert("Invalid data format!");
+                }
+            } catch (err) {
+                alert("Error reading file!");
+            }
+        };
+        reader.readAsText(file);
+    });
+
+    // Reset Data
+    resetBtn.addEventListener('click', () => {
+        if(confirm("Are you sure you want to delete ALL data? This cannot be undone unless you have a backup!")) {
+            localStorage.removeItem('naamJapData');
+            localStorage.setItem('naamJapCleared', 'true');
+            alert("Data reset. Please refresh the page.");
+            location.reload();
+        }
+    });
+}
+
+// Start
+init();
+
+</script>
+</body>
+</html>
